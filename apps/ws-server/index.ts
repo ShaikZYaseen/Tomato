@@ -1,7 +1,7 @@
 // ✅ CommonJS workaround (Bun supports this)
+import { WebSocketServer } from 'ws';
+import type { WebSocket } from 'ws';
 import { createClient } from 'redis';
-import { WebSocketServer,WebSocket } from 'ws';
-
 
 
 const PORT = 2567;
