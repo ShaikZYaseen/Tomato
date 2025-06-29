@@ -1,6 +1,6 @@
 // ✅ CommonJS workaround (Bun supports this)
 import { WebSocketServer } from 'ws';
-import type { WebSocket } from 'ws';
+import type { WebSocket as WS } from 'ws';
 import { createClient } from 'redis';
 
 
@@ -12,7 +12,7 @@ export const redis = createClient();
   await redis.connect();
   console.log("🔗 Connected to Redis");
 
-  const sockets = new Map<string, WebSocket>();
+  const sockets = new Map<string, WS>();
 
   interface Player {
     id: string;
@@ -21,17 +21,17 @@ export const redis = createClient();
     roomId: string;
   }
 
-  async function broadcastToRoom(roomId: string, data: any, excludeSocket?: WebSocket) {
+  async function broadcastToRoom(roomId: string, data: any, excludeSocket?: WS) {
     const memberIds = await redis.sMembers(`room:${roomId}:players`);
     for (const memberId of memberIds) {
       const socket = sockets.get(memberId);
-      if (socket && socket.readyState === WebSocket.OPEN && socket !== excludeSocket) {
+      if (socket && socket.readyState === 1 && socket !== excludeSocket) {
         socket.send(JSON.stringify(data));
       }
     }
   }
 
-  wss.on('connection', async (ws: WebSocket) => {
+  wss.on('connection', async (ws: WS) => {
     let playerId: string | null = null;
 
     ws.on('message', async (raw: string) => {
