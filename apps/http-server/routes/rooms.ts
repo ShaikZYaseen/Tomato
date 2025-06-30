@@ -7,7 +7,7 @@ const roomRouter = express.Router();
 
 
 
-  roomRouter.get('/rooms', async (req:Request, res:Response) : Promise<any> => {
+  roomRouter.get('/', async (req:Request, res:Response) : Promise<any> => {
     const rooms = await prismaClient.room.findMany({
       select: { id: true, name: true, isPrivate: true, createdAt: true, ownerId: true }
     });
@@ -23,7 +23,7 @@ const roomRouter = express.Router();
 
 
   roomRouter.post(
-    '/rooms',
+    '/',
     userMiddleware,
     async (req: Request, res: Response) : Promise<any> =>  {
       const { name, isPrivate } = req.body;
@@ -37,3 +37,42 @@ const roomRouter = express.Router();
       return res.status(201).json(room);
     }
   );
+
+
+  roomRouter.get(
+    '/:roomId',
+    async (req: Request, res: Response) : Promise<any> => {
+      const { roomId } = req.params;
+      const room = await prismaClient.room.findUnique({
+        where: { id: roomId },
+        select: { id: true, name: true, isPrivate: true, createdAt: true, ownerId: true }
+      });
+      if (!room) {
+        return res.status(404).json({ error: 'Room not found' });
+      }
+      const playerCount = await redis.sCard(`room:${roomId}:players`);
+      return res.json({ ...room, playerCount });
+    }
+  );
+
+
+
+  
+roomRouter.delete(
+    '/:roomId',
+    userMiddleware,
+    async (req: Request, res: Response) : Promise<any> => {
+      const { roomId } = req.params;
+      const room = await prismaClient.room.findUnique({ where: { id: roomId } });
+      if (!room) return res.status(404).json({ error: 'Room not found' });
+      //@ts-ignore
+      if (room.ownerId !== req.user!.id) {
+        return res.status(403).json({ error: 'Not authorized' });
+      }
+      await prismaClient.room.delete({ where: { id: roomId } });
+      await redis.del(`room:${roomId}:players`);
+      return res.status(204).send();
+    }
+  );
+
+
