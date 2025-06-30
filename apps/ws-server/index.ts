@@ -6,7 +6,7 @@ import { createClient } from 'redis';
 
 const PORT = 2567;
 const wss = new WebSocketServer({ port: PORT });
-export const redis = createClient();
+ const redis = createClient();
 
 (async () => {
   await redis.connect();
@@ -125,3 +125,5 @@ export const redis = createClient();
 
   console.log(`✅ WebSocket server running on ws://localhost:${PORT}`);
 })();
+
+export default redis;

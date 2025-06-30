@@ -8,7 +8,8 @@
   },
   "peerDependencies": {
     "typescript": "^5",
-      "db": "*"
+      "db": "*",
+      "ws-server":"*"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
