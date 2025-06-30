@@ -7,6 +7,62 @@ const roomRouter = express.Router();
 
 
 
+
+
+
+
+roomRouter.post(
+  '/:roomId/join',
+  userMiddleware,
+  async (req: Request, res: Response) : Promise<any> => {
+    const { roomId } = req.params;
+    //@ts-ignore
+    const userId = req.userId;
+
+    // 1. Make sure the room exists
+    const room = await prismaClient.room.findUnique({ where: { id: roomId } });
+    if (!room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+
+    // 2. Add user to the room's Redis set
+    await redis.sAdd(`room:${roomId}:players`, userId);
+
+    // 3. Initialize their player hash (so WS knows where to start them)
+    await redis.hSet(`player:${userId}`, {
+      id: userId,
+      x: 0,
+      y: 0,
+      roomId
+    } as any);
+
+    // 4. Return the new list of players
+    const players = await redis.sMembers(`room:${roomId}:players`);
+    return res.json({ roomId, players });
+  }
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   roomRouter.get('/', async (req:Request, res:Response) : Promise<any> => {
     const rooms = await prismaClient.room.findMany({
       select: { id: true, name: true, isPrivate: true, createdAt: true, ownerId: true }
@@ -32,7 +88,7 @@ const roomRouter = express.Router();
       }
       const room = await prismaClient.room.create({
         //@ts-ignore
-        data: { name, isPrivate: Boolean(isPrivate), ownerId: req.user!.id }
+        data: { name, isPrivate: Boolean(isPrivate), ownerId: req.userId }
       });
       return res.status(201).json(room);
     }
@@ -66,7 +122,7 @@ roomRouter.delete(
       const room = await prismaClient.room.findUnique({ where: { id: roomId } });
       if (!room) return res.status(404).json({ error: 'Room not found' });
       //@ts-ignore
-      if (room.ownerId !== req.user!.id) {
+      if (room.ownerId !== req.userId) {
         return res.status(403).json({ error: 'Not authorized' });
       }
       await prismaClient.room.delete({ where: { id: roomId } });
@@ -79,3 +135,4 @@ roomRouter.delete(
 
   
 
+export default roomRouter;

@@ -1,5 +1,6 @@
 import express, { type Request, type Response } from "express"
 import authRouter from "./routes/auth";
+import roomRouter from "./routes/rooms";
 
 const app = express();
 
@@ -8,6 +9,7 @@ const app = express();
 
 
 app.use("/api/v1/auth",authRouter)
+app.use("/api/v1/rooms",roomRouter)
 
 
 app.listen(8080, () => {
