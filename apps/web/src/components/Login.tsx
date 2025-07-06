@@ -8,9 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
+import { loginService } from '@/services/auth';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -56,11 +60,18 @@ export default function LoginPage() {
     
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      alert('Login successful! (This is a demo)');
-    }, 1500);
+    const res = await loginService(formData)
+   if(res.success){
+    toast(res.message)
+    localStorage.setItem("token",res.token);
+    router.push("/")
+
+   }else{
+    toast(res.message)
+   }
+
+   setIsLoading(false)
+  
   };
 
   return (

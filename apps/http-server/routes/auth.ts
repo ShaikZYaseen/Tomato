@@ -6,15 +6,15 @@ const authRouter = express.Router()
 
 authRouter.post("/signin", async(req:Request,res:Response) => {
     try {
-      const {username,password} = req.body;
-      if(!username || !password){
+      const {email,password} = req.body;
+      if(!email || !password){
         res.status(400).send({message:"username and password are required"})
         return;
       }
 
       const user = await prismaClient.user.findFirst({
         where:{
-            name:username
+            email:email
         }
       });
 
@@ -25,13 +25,14 @@ authRouter.post("/signin", async(req:Request,res:Response) => {
 
       const isPasswordCorrect = await verifyPassword(password,user.password);
        if(!isPasswordCorrect){
-        res.status(403).json({message: "Invalid password"})
+        res.status(403).json({success:false,message: "Invalid password"})
         return
        }
 
        const token = await signJwt({userId:user.id})
 
        res.status(200).json({
+        success:true,
         message:"Log in successful",
         token
        })
@@ -51,6 +52,15 @@ authRouter.post("/signup", async(req:Request,res:Response)=>{
         res.status(400).json({message:"All details are mandatory"})
         return;
       } 
+      const userExists = await prismaClient.user.findFirst({
+        where:{
+          email:email
+        }
+      })
+      if(userExists){
+        res.status(400).json({message:"User with the email already exists!"});
+        return;
+      }
       const hashedString = await hashedPassword(password);
       const user = await prismaClient.user.create({
       data:{
@@ -59,6 +69,7 @@ authRouter.post("/signup", async(req:Request,res:Response)=>{
         email
       } 
       })
+      console.log("USER",user)
       const token = await signJwt({userId:user.id})
       res.status(200).json({
         message:"User registered successfully",

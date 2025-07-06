@@ -1,10 +1,13 @@
 import express, { type Request, type Response } from "express"
+import cors from "cors";
 import authRouter from "./routes/auth";
 import roomRouter from "./routes/rooms";
 
 const app = express();
 
 
+
+app.use(cors())
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
