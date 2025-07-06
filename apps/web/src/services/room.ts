@@ -11,7 +11,7 @@ export interface RoomDetails {
 
 export const joinRoomService = async (id: string): Promise<RoomDetails> => {
   try {
-    const url = `http://localhost:3000/api/v1/rooms/${id}/join`;
+    const url = `http://localhost:8080/api/v1/rooms/${id}/join`;
     const response = await axios.post<RoomDetails>(url);
     return response.data;
   } catch (error: any) {

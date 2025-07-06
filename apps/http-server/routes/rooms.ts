@@ -1,6 +1,6 @@
 import prismaClient from "db/client";
 import express, { type Request, type Response } from "express";
-import redis from "../../ws-server";
+import redis from "ws-server/redisClient";
 import { userMiddleware } from "../helpers/middleware";
 
 const roomRouter = express.Router();

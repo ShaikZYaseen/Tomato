@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Users, LogIn, Hash } from 'lucide-react';
+import { Users, LogIn, Hash, Terminal } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { joinRoomService } from '@/services/room';
 
 export default function RoomDashboard() {
   const [roomId, setRoomId] = useState('');
@@ -13,19 +15,34 @@ export default function RoomDashboard() {
 
   const handleJoinRoom = async () => {
     if (!roomId.trim()) {
-      alert('Please enter a valid Room ID');
+      <Alert variant="default | destructive">
+      <Terminal />
+      <AlertTitle>Oops!</AlertTitle>
+      <AlertDescription>
+        Please enter valid room id
+      </AlertDescription>
+    </Alert>
       return;
     }
 
     setIsLoading(true);
+
+
+    const res = await  joinRoomService(roomId);
+    console.log("res",res)
+
+    // if(res.){
+    //   <Alert variant="default | destructive">
+    //   <Terminal />
+    //   <AlertTitle>Yay!</AlertTitle>
+    //   <AlertDescription>
+    //     Room entered successfully
+    //   </AlertDescription>
+    // </Alert>
+    // }
+
     
-    // Simulate API call - replace with your actual logic
-    setTimeout(() => {
-      console.log('Joining room:', roomId);
-      alert(`Joining room: ${roomId}`);
-      setIsLoading(false);
-      // You can add router.push('/room/' + roomId) here
-    }, 1000);
+   
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

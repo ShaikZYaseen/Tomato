@@ -33,11 +33,7 @@ export const adminMiddleware = async(req:Request,res:Response,next:NextFunction)
             return
         } 
         const decoded = await verifyJwt(token);
-        const role = decoded.role;
-        if(role != "admin"){
-            res.status(403).json({message: "Unauthorized"})
-            return
-        }
+        
         //@ts-ignore
         req.userId = decoded.userId
         next()

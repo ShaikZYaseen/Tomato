@@ -46,8 +46,8 @@ authRouter.post("/signin", async(req:Request,res:Response) => {
 
 authRouter.post("/signup", async(req:Request,res:Response)=>{
     try {
-      const {username,password,role,email} = req.body;
-      if(!username || !password || !role || !email){
+      const {username,password,email} = req.body;
+      if(!username || !password  || !email){
         res.status(400).json({message:"All details are mandatory"})
         return;
       } 
@@ -59,7 +59,7 @@ authRouter.post("/signup", async(req:Request,res:Response)=>{
         email
       } 
       })
-      const token = await signJwt({userId:user.id,role:role})
+      const token = await signJwt({userId:user.id})
       res.status(200).json({
         message:"User registered successfully",
         token
