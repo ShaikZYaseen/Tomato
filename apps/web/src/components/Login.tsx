@@ -63,7 +63,8 @@ export default function LoginPage() {
     const res = await loginService(formData)
    if(res.success){
     toast(res.message)
-    localStorage.setItem("token",res.token);
+    document.cookie = `token=${res.token}; path=/; max-age=604800; SameSite=Lax; Secure`;
+
     router.push("/")
 
    }else{

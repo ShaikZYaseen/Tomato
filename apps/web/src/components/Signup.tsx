@@ -95,7 +95,7 @@ export default function SignupPage() {
     console.log("POP",res)
     if(res.success){
      toast(res.data.message);
-     localStorage.setItem("token",res.data.token)
+     document.cookie = `token=${res.data.token}; path=/; max-age=604800; SameSite=Lax; Secure`;
       router.push("/");
     }else{
      toast(res.message)
